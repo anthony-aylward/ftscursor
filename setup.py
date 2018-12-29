@@ -11,11 +11,11 @@ setuptools.setup(
     description="A sqlite3 cursor with extra methods to support FTS3/4/5",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/anthony-aylward/ftscursor",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ],
+    ]
 )
