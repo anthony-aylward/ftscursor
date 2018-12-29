@@ -91,10 +91,9 @@ class FTSCursor(Cursor):
         table,
         query,
         page,
-        per_page,
-        source_db_name='source'
+        per_page
     ):
-        self.validate_table_name(table, source_db_name=source_db_name)
+        self.validate_table_name(table, source_db_name='main')
         searchable_columns = self.indexed_columns(table)
         return tuple(
             tup[0] for tup in self.execute(
