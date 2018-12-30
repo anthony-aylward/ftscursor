@@ -78,7 +78,7 @@ class FTSCursor(sqlite3.Cursor):
                 """
             )
         if delete:
-            self.execute(f'DELETE FROM {table} WHERE docid = ?', (id,))
+            self.execute(f'DELETE FROM {table} WHERE rowid = ?', (id,))
         self.execute(f"""
             INSERT INTO {table}(rowid, {', '.join(searchable)})
             SELECT id, {', '.join(searchable)}
@@ -119,18 +119,12 @@ class FTSCursor(sqlite3.Cursor):
         self.validate_table_name(table, source_db_name='main')
         self.execute(f'DELETE FROM {table} WHERE id = ?', (id,))
     
-    def search(
-        self,
-        table,
-        query,
-        page,
-        per_page
-    ):
+    def search(self, table, query):
         self.validate_table_name(table, source_db_name='main')
         searchable_columns = self.indexed_columns(table)
         return tuple(
             tup[0] for tup in self.execute(
-                f'SELECT docid FROM {table} WHERE {table} MATCH ?',
+                f'SELECT rowid FROM {table} WHERE {table} MATCH ?',
                 (' OR '.join(f'{col}:{query}' for col in searchable_columns),)
             )
         )
