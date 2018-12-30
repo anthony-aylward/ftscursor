@@ -4,15 +4,19 @@
 
 # Imports ======================================================================
 
-from sqlite3 import Cursor
+import sqlite3
 
 
 
 
 # Classes ======================================================================
 
-class FTSCursor(Cursor):
+class FTSCursor(sqlite3.Cursor):
     """A Cursor with additional methods to support FTS indexing & searching"""
+
+    def __init__(self):
+        self.default_fts_version = 5 if fts5_is_enabled() else 4
+        super().__init__()
 
     def attach_source_db(self, source_db_path, source_db_name='source'):
         self.execute('ATTACH ? AS ?', (source_db_path, source_db_name))
@@ -87,7 +91,7 @@ class FTSCursor(Cursor):
         table,
         searchable,
         source_db_name='source',
-        fts_version=4
+        fts_version=None
     ):
         self.validate_table_name(table, source_db_name=source_db_name)
         self.validate_column_names(
@@ -99,7 +103,9 @@ class FTSCursor(Cursor):
             raise RuntimeError(f'A FTS table named {table} already exists')
         self.executescript(f"""
             CREATE VIRTUAL TABLE {table}
-            USING fts{fts_version}({', '.join(searchable)});
+            USING fts{fts_version if fts_version else self.default_fts_version}(
+                {', '.join(searchable)}
+            );
 
             INSERT INTO {table}(docid, {', '.join(searchable)})
             SELECT id, {', '.join(searchable)}
@@ -126,3 +132,16 @@ class FTSCursor(Cursor):
                 (' OR '.join(f'{col}:{query}' for col in searchable_columns),)
             )
         )
+
+
+
+
+# Functions ====================================================================
+
+def fts5_is_enabled():
+    conn = sqlite3.connect(':memory:')
+    c = conn.cursor()
+    c.execute('pragma compile_options;')
+    available_pragmas = c.fetchall()
+    conn.close()
+    return ('ENABLE_FTS5',) in available_pragmas
