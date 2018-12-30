@@ -61,7 +61,7 @@ class FTSCursor(sqlite3.Cursor):
         searchable,
         source_db_name='source',
         delete=True,
-        fts_version=4
+        fts_version=None
     ):
         self.validate_table_name(table, source_db_name=source_db_name)
         self.validate_column_names(
@@ -72,13 +72,15 @@ class FTSCursor(sqlite3.Cursor):
         if not self.table_is_indexed(table):
             self.execute(f"""
                 CREATE VIRTUAL TABLE {table}
-                USING fts{fts_version}({', '.join(searchable)})
+                USING fts{
+                    fts_version if fts_version else self.default_fts_version
+                }({', '.join(searchable)})
                 """
             )
         if delete:
             self.execute(f'DELETE FROM {table} WHERE docid = ?', (id,))
         self.execute(f"""
-            INSERT INTO {table}(docid, {', '.join(searchable)})
+            INSERT INTO {table}(rowid, {', '.join(searchable)})
             SELECT id, {', '.join(searchable)}
             FROM {source_db_name}.{table}
             WHERE id = ?
@@ -107,7 +109,7 @@ class FTSCursor(sqlite3.Cursor):
                 {', '.join(searchable)}
             );
 
-            INSERT INTO {table}(docid, {', '.join(searchable)})
+            INSERT INTO {table}(rowid, {', '.join(searchable)})
             SELECT id, {', '.join(searchable)}
             FROM {source_db_name}.{table}
             """
