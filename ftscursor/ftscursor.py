@@ -82,6 +82,31 @@ class FTSCursor(Cursor):
             (id,)
         )
     
+    def index_all(
+        self,
+        table,
+        searchable,
+        source_db_name='source',
+        fts_version=4
+    ):
+        self.validate_table_name(table, source_db_name=source_db_name)
+        self.validate_column_names(
+            table,
+            *searchable,
+            source_db_name=source_db_name
+        )
+        if self.table_is_indexed(table):
+            raise RuntimeError(f'A FTS table named {table} already exists')
+        self.executescript(f"""
+            CREATE VIRTUAL TABLE {table}
+            USING fts{fts_version}({', '.join(searchable)});
+
+            INSERT INTO {table}(docid, {', '.join(searchable)})
+            SELECT id, {', '.join(searchable)}
+            FROM {source_db_name}.{table}
+            """
+        )
+    
     def delete(self, table, id):
         self.validate_table_name(table, source_db_name='main')
         self.execute(f'DELETE FROM {table} WHERE id = ?', (id,))
