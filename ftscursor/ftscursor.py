@@ -15,7 +15,7 @@ class FTSCursor(sqlite3.Cursor):
     """A Cursor with additional methods to support FTS indexing & searching"""
 
     def __init__(self, *args, **kwargs):
-        self.default_fts_version = 5 if fts5_is_enabled() else 4
+        self.default_fts_version = latest_fts_version()
         super().__init__(*args, **kwargs)
 
     def attach_source_db(self, source_db_path, source_db_name='source'):
@@ -138,10 +138,14 @@ class FTSCursor(sqlite3.Cursor):
 
 # Functions ====================================================================
 
-def fts5_is_enabled():
+def latest_fts_version():
     conn = sqlite3.connect(':memory:')
     c = conn.cursor()
     c.execute('pragma compile_options')
     available_pragmas = c.fetchall()
     conn.close()
-    return ('ENABLE_FTS5',) in available_pragmas
+    if ('ENABLE_FTS5',) in available_pragmas:
+        return 5
+    if ('ENABLE_FTS3',) in available_pragmas:
+        return 4
+    raise RuntimeError('FTS extensions are not enabled')
