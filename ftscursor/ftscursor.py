@@ -141,7 +141,7 @@ class FTSCursor(sqlite3.Cursor):
 def fts5_is_enabled():
     conn = sqlite3.connect(':memory:')
     c = conn.cursor()
-    c.execute('pragma compile_options;')
+    c.execute('pragma compile_options')
     available_pragmas = c.fetchall()
     conn.close()
     return ('ENABLE_FTS5',) in available_pragmas
