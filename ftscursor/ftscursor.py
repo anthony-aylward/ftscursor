@@ -14,9 +14,9 @@ import sqlite3
 class FTSCursor(sqlite3.Cursor):
     """A Cursor with additional methods to support FTS indexing & searching"""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.default_fts_version = 5 if fts5_is_enabled() else 4
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def attach_source_db(self, source_db_path, source_db_name='source'):
         self.execute('ATTACH ? AS ?', (source_db_path, source_db_name))
