@@ -21,8 +21,12 @@ from ftscursor import FTSCursor
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description = (
+        description=(
             'Create a sqlite3 FTS table in memory and perform a query'
+        ),
+        epilog=(
+            'The supplied database must have an INTEGER column called "id" '
+            'with a unique value for each row.'
         )
     )
     parser.add_argument(

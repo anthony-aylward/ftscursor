@@ -4,6 +4,9 @@ This package contains a subclass of the sqlite3.Cursor class that makes
 it easy to perform (simple) full-text-search operations using the sqlite3
 module.
 
+See the included [example script](https://github.com/anthony-aylward/ftscursor/blob/master/ftscursor/example_script.py)
+for an application of the FTSCursor class.
+
 Classes
 -------
 FTSCursor
