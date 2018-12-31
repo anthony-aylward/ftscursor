@@ -39,7 +39,7 @@ def parse_arguments():
         'columns',
         metavar='<column_name>',
         nargs='+',
-        help='a which will be indexed'
+        help='a column which will be indexed'
     )
     parser.add_argument(
         'query',

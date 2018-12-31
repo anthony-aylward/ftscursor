@@ -21,7 +21,7 @@ positional arguments:
   <path/to/database.db>
                         a sqlite database
   <table_name>          the table which will be indexed
-  <column_name>         a which will be indexed
+  <column_name>         a column which will be indexed
   <query>               a FTS query
 
 optional arguments:
