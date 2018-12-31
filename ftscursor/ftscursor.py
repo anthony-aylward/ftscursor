@@ -150,7 +150,7 @@ class FTSCursor(sqlite3.Cursor):
         Parameters
         ----------
         table_name : str
-            name of a FTS table
+            table name to check
 
         Returns
         -------
