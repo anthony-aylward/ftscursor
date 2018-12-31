@@ -19,6 +19,6 @@ setuptools.setup(
         'Operating System :: OS Independent',
     ],
     entry_points = {
-        'console_scripts': ['ftscursor-example=ftscursor.example_script::main']
+        'console_scripts': ['ftscursor-example=ftscursor:example_script::main']
     }
 )

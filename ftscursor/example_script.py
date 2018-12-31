@@ -58,7 +58,7 @@ def main():
     c.validate_column_names(args.table, *args.columns)
     c.index_all(args.table, args.columns)
     c.detach_source_db()
-    print(tuple(c.search(args.table, args.query, 1, 3)))
+    print(tuple(c.search(args.table, args.query)))
 
 
 
