@@ -144,6 +144,23 @@ class FTSCursor(sqlite3.Cursor):
         self.execute(f'SELECT * FROM main.{table_name}')
         return tuple(tup[0] for tup in self.description)
     
+    def source_table_has_id_column(self, table_name, source_db_name='source'):
+        """Check whether or not a table in the source db has an "id" column
+
+        Parameters
+        ----------
+        table_name : str
+            name of a FTS table
+
+        Returns
+        -------
+        bool
+            True if the source table has an "id" column, False otherwise
+        """
+
+        self.execute(f'SELECT * FROM {source_db_name}.{table_name}')
+        return 'id' in set(tup[0] for tup in self.description)
+    
     def index(
         self,
         table,
@@ -160,7 +177,7 @@ class FTSCursor(sqlite3.Cursor):
         table : str
             name of the table in the source database
         id : int
-            rowid of the row to in the source database
+            rowid of the row to index in the source database
         searchable : iterable of str
             column names to include in the FTS table
         source_db_name : str, optional
@@ -178,6 +195,10 @@ class FTSCursor(sqlite3.Cursor):
             *searchable,
             source_db_name=source_db_name
         )
+        has_id_column = not self.source_table_has_id_column(
+            table,
+            source_db_name=source_db_name
+        )
         if not self.table_is_indexed(table):
             self.execute(f"""
                 CREATE VIRTUAL TABLE {table}
@@ -190,9 +211,9 @@ class FTSCursor(sqlite3.Cursor):
             self.execute(f'DELETE FROM {table} WHERE rowid = ?', (id,))
         self.execute(f"""
             INSERT INTO {table}(rowid, {', '.join(searchable)})
-            SELECT id, {', '.join(searchable)}
+            SELECT {'row' * (not has_id_column)}id, {', '.join(searchable)}
             FROM {source_db_name}.{table}
-            WHERE id = ?
+            WHERE {'row' * (not has_id_column)}id = ?
             """,
             (id,)
         )
@@ -218,7 +239,7 @@ class FTSCursor(sqlite3.Cursor):
         fts_version : int
             FTS version to use if a new table is created
         """
-        
+
         self.validate_table_name(table, source_db_name=source_db_name)
         self.validate_column_names(
             table,
