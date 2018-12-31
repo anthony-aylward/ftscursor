@@ -1,4 +1,6 @@
-"""The FTSCursor class and related functions
+"""This package contains a subclass of the sqlite3.Cursor class that makes
+it easy to perform (simple) full-text-search operations using the sqlite3
+module
 
 Classes
 -------
