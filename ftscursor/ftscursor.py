@@ -272,7 +272,7 @@ class FTSCursor(sqlite3.Cursor):
         """
 
         self.validate_table_name(table, source_db_name='main')
-        self.execute(f'DELETE FROM {table} WHERE id = ?', (id,))
+        self.execute(f'DELETE FROM {table} WHERE rowid = ?', (id,))
     
     def search(self, table, query):
         """Perform a search on an FTS table
