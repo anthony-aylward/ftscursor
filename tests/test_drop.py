@@ -1,6 +1,5 @@
 import pytest
 import sqlite3
-import tempfile
 from ftscursor import FTSCursor
 
 @pytest.fixture(scope="module")
