@@ -311,17 +311,17 @@ class FTSCursor(sqlite3.Cursor):
             )
         )
 
-        def drop(self, table: str):
-            """Drop a FTS table
+    def drop(self, table: str):
+        """Drop a FTS table
 
-            Parameters
-            ----------
-            table : str
-                name of table to drop
-            """
+        Parameters
+        ----------
+        table : str
+            name of table to drop
+        """
 
-            self.validate_table_name(table, source_db_name='main')
-            self.execute('DROP TABLE ?', (table,))
+        self.validate_table_name(table, source_db_name='main')
+        self.execute(f'DROP TABLE {table}')
 
 
 
