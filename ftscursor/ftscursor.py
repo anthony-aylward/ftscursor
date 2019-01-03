@@ -33,7 +33,11 @@ class FTSCursor(sqlite3.Cursor):
         self.default_fts_version = latest_fts_version()
         super().__init__(*args, **kwargs)
 
-    def attach_source_db(self, source_db_path, source_db_name='source'):
+    def attach_source_db(
+        self,
+        source_db_path: str,
+        source_db_name: str = 'source'
+    ):
         """Attach a source database to the connection
         
         Parameters
@@ -46,7 +50,7 @@ class FTSCursor(sqlite3.Cursor):
 
         self.execute('ATTACH ? AS ?', (source_db_path, source_db_name))
     
-    def detach_source_db(self, source_db_name='source'):
+    def detach_source_db(self, source_db_name: str ='source'):
         """Detach a source database from the connection
         
         Parameters
@@ -57,7 +61,11 @@ class FTSCursor(sqlite3.Cursor):
 
         self.execute('DETACH ?', (source_db_name,))
 
-    def validate_table_name(self, table_name, source_db_name='source'):
+    def validate_table_name(
+        self,
+        table_name: str,
+        source_db_name: str = 'source'
+    ):
         """Check that a database contains a table with the provided name
 
         Parameters
@@ -83,9 +91,9 @@ class FTSCursor(sqlite3.Cursor):
     
     def validate_column_names(
         self,
-        table_name,
-        *column_names,
-        source_db_name='source'
+        table_name: str,
+        *column_names: str,
+        source_db_name: str ='source'
     ):
         """Check that a table includes the provided columns
 
@@ -108,7 +116,7 @@ class FTSCursor(sqlite3.Cursor):
         if not set(column_names) <= {tup[0] for tup in self.description}:
             raise ValueError('Invalid column names')
     
-    def table_is_indexed(self, table_name):
+    def table_is_indexed(self, table_name: str):
         """Check that a FTS table with the provided name has been created
 
         Parameters
@@ -127,7 +135,7 @@ class FTSCursor(sqlite3.Cursor):
             )
         }
     
-    def indexed_columns(self, table_name):
+    def indexed_columns(self, table_name: str):
         """List the columns of a FTS table
 
         Parameters
@@ -144,7 +152,11 @@ class FTSCursor(sqlite3.Cursor):
         self.execute(f'SELECT * FROM main.{table_name}')
         return tuple(tup[0] for tup in self.description)
     
-    def source_table_has_id_column(self, table_name, source_db_name='source'):
+    def source_table_has_id_column(
+        self,
+        table_name: str,
+        source_db_name: str = 'source'
+    ):
         """Check whether or not a table in the source db has an "id" column
 
         Parameters
@@ -163,11 +175,11 @@ class FTSCursor(sqlite3.Cursor):
     
     def index(
         self,
-        table,
-        id,
+        table: str,
+        id: int,
         searchable,
-        source_db_name='source',
-        delete=True,
+        source_db_name: str = 'source',
+        delete: bool = True,
         fts_version=None
     ):
         """Add a row to a FTS table, creating a new table if necessary
@@ -220,9 +232,9 @@ class FTSCursor(sqlite3.Cursor):
     
     def index_all(
         self,
-        table,
+        table: str,
         searchable,
-        source_db_name='source',
+        source_db_name: str = 'source',
         fts_version=None
     ):
         """Create a new FTS table by copying an existing table in the source
@@ -260,7 +272,7 @@ class FTSCursor(sqlite3.Cursor):
             """
         )
     
-    def delete(self, table, id):
+    def delete(self, table: str, id: int):
         """Delete a row from a FTS table
 
         Parameters
@@ -274,7 +286,7 @@ class FTSCursor(sqlite3.Cursor):
         self.validate_table_name(table, source_db_name='main')
         self.execute(f'DELETE FROM {table} WHERE rowid = ?', (id,))
     
-    def search(self, table, query):
+    def search(self, table: str, query: str):
         """Perform a search on an FTS table
 
         Parameters
