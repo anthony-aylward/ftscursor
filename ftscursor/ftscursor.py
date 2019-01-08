@@ -375,9 +375,11 @@ def latest_fts_version():
         return 4
     raise RuntimeError('FTS extensions are not enabled')
 
+
 def _chunks(s, n):
     for i in range(0, len(s), n):
         yield s[i:i + n]
+
 
 def _parse_matchinfo(matchinfo):
     n_phrases, n_columns, n_rows, *rest = (
@@ -391,12 +393,15 @@ def _parse_matchinfo(matchinfo):
     )
     return n_phrases, n_columns, n_rows, avg_tokens, n_tokens, x
 
+
 def _inverse_document_frequency(n_rows, n_match):
     return math.log(n_rows - n_match + 0.5) - math.log(n_match + 0.5)
+
 
 def _bm25(n_phrases, n_columns, n_rows, avg_tokens, n_tokens, x):
     k = 1.2
     b = 0.75
+    print(x)
     inverse_document_freq = tuple(
         tuple(
             _inverse_document_frequency(n_rows, x[phrase][col][3])
