@@ -208,7 +208,7 @@ class FTSCursor(sqlite3.Cursor):
             *searchable,
             source_db_name=source_db_name
         )
-        has_id_column = not self.source_table_has_id_column(
+        has_id_column = self.source_table_has_id_column(
             table,
             source_db_name=source_db_name
         )
@@ -261,7 +261,7 @@ class FTSCursor(sqlite3.Cursor):
         )
         if self.table_is_indexed(table):
             raise RuntimeError(f'A FTS table named {table} already exists')
-        has_id_column = not self.source_table_has_id_column(
+        has_id_column = self.source_table_has_id_column(
             table,
             source_db_name=source_db_name
         )
