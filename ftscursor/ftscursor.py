@@ -321,12 +321,15 @@ class FTSCursor(sqlite3.Cursor):
             )
         else:
             return tuple(
-                tup[0] for tup in self.execute(f'''
-                    SELECT rowid, matchinfo({table}, 'pcnalx') FROM {table}
-                    WHERE {table} MATCH ?
-                    ''',
-                    q
-                ).sorted(key=lambda tup: _bm25(*_parse_matchinfo(tup[1])))
+                tup[0] for tup in sorted(
+                    self.execute(f'''
+                        SELECT rowid, matchinfo({table}, 'pcnalx') FROM {table}
+                        WHERE {table} MATCH ?
+                        ''',
+                        q
+                    ),
+                    key=lambda tup: _bm25(*_parse_matchinfo(tup[1]))
+                )
             )
 
 
