@@ -9,8 +9,9 @@
 
 # Imports ======================================================================
 
+import math
 import sqlite3
-
+import sys
 
 
 
@@ -286,7 +287,7 @@ class FTSCursor(sqlite3.Cursor):
         self.validate_table_name(table, source_db_name='main')
         self.execute(f'DELETE FROM {table} WHERE rowid = ?', (id,))
     
-    def search(self, table: str, query: str):
+    def search(self, table: str, query: str, fts_version=None):
         """Perform a search on an FTS table
 
         Parameters
@@ -295,21 +296,39 @@ class FTSCursor(sqlite3.Cursor):
             name of table to search in
         query : str
             SQL query string
+        fts_version
+            The FTS version to use (4 or 5)
 
         Returns
         -------
         tuple of int
-            rowids of rows matching the query
+            rowids of rows matching the query, sorted by relevance
         """
 
+        if fts_version == None:
+            fts_version = self.default_fts_version
         self.validate_table_name(table, source_db_name='main')
         searchable_columns = self.indexed_columns(table)
-        return tuple(
-            tup[0] for tup in self.execute(
-                f'SELECT rowid FROM {table} WHERE {table} MATCH ?',
-                (' OR '.join(f'{col}:{query}' for col in searchable_columns),)
+        q = (' OR '.join(f'{col}:{query}' for col in searchable_columns),)
+        if fts_version == 5:
+            return tuple(
+                tup[0] for tup in self.execute(f'''
+                    SELECT rowid FROM {table} WHERE {table} MATCH ? ORDER BY
+                    rank
+                    ''',
+                    q
+                )
             )
-        )
+        else:
+            return tuple(
+                tup[0] for tup in self.execute(f'''
+                    SELECT rowid, matchinfo({table}, 'pcnalx') FROM {table}
+                    WHERE {table} MATCH ?
+                    ''',
+                    q
+                ).sorted(key=lambda tup: _bm25(*_parse_matchinfo(tup[1])))
+            )
+
 
     def drop(self, table: str):
         """Drop a FTS table
@@ -352,3 +371,44 @@ def latest_fts_version():
     if ('ENABLE_FTS3',) in available_pragmas:
         return 4
     raise RuntimeError('FTS extensions are not enabled')
+
+def _chunks(s, n):
+    for i in range(0, len(s), n):
+        yield s[i:i + n]
+
+def _parse_matchinfo(matchinfo):
+    n_phrases, n_columns, n_rows, *rest = (
+        int.from_bytes(x, byteorder=sys.byteorder)
+        for x in _chunks(matchinfo, 4)
+    )
+    avg_tokens, n_tokens, x = (
+        rest[0:n_columns],
+        rest[n_columns:(2 * n_columns)],
+        tuple(_chunks(_chunks(rest[(2 * n_columns):], 3), n_columns))
+    )
+    return n_phrases, n_columns, n_rows, avg_tokens, n_tokens, x
+
+def _inverse_document_frequency(n_rows, n_match):
+    return math.log(n_rows - n_match + 0.5) - math.log(n_match + 0.5)
+
+def _bm25(n_phrases, n_columns, n_rows, avg_tokens, n_tokens, x):
+    k = 1.2
+    b = 0.75
+    inverse_document_freq = tuple(
+        tuple(
+            _inverse_document_frequency(n_rows, x[phrase][col][3])
+            for phrase in range(n_phrases)
+        )
+        for col in range(n_columns)
+    )
+    phrase_freq = tuple(
+        tuple(x[phrase][col][1] for phrase in range(n_phrases))
+        for col in range(n_columns)
+    )
+    return -1 * sum(
+        idf * f * (k + 1) / (
+            f + k * (1 - b + b * n_tokens[col] / avg_tokens[col])
+        )
+        for col in range(n_columns)
+        for idf, f in zip(inverse_document_freq[col], phrase_freq[col])
+    )
