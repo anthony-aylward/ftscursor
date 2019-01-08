@@ -261,6 +261,10 @@ class FTSCursor(sqlite3.Cursor):
         )
         if self.table_is_indexed(table):
             raise RuntimeError(f'A FTS table named {table} already exists')
+        has_id_column = not self.source_table_has_id_column(
+            table,
+            source_db_name=source_db_name
+        )
         self.executescript(f"""
             CREATE VIRTUAL TABLE {table}
             USING fts{fts_version if fts_version else self.default_fts_version}(
@@ -268,7 +272,7 @@ class FTSCursor(sqlite3.Cursor):
             );
 
             INSERT INTO {table}(rowid, {', '.join(searchable)})
-            SELECT id, {', '.join(searchable)}
+            SELECT {'row' * (not has_id_column)}id, {', '.join(searchable)}
             FROM {source_db_name}.{table}
             """
         )
