@@ -387,7 +387,7 @@ def _parse_matchinfo(matchinfo):
     avg_tokens, n_tokens, x = (
         rest[0:n_columns],
         rest[n_columns:(2 * n_columns)],
-        tuple(_chunks(_chunks(rest[(2 * n_columns):], 3), n_columns))
+        tuple(_chunks(tuple(_chunks(rest[(2 * n_columns):], 3)), n_columns))
     )
     return n_phrases, n_columns, n_rows, avg_tokens, n_tokens, x
 
