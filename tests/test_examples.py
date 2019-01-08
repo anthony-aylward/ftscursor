@@ -110,14 +110,14 @@ def test_and_without_id(example_connection_without_id):
 def test_precedence(example_connection):
     c = example_connection.cursor(factory=FTSCursor)
     assert tuple(c.search('posts', 'search AND sqlite OR help')) == (
-        (3, 2, 1) if c.default_fts_version == 5 else (2, 3, 1)
+        (3, 2, 1) if c.default_fts_version == 5 else (2, 1, 3)
     )
 
 
 def test_precedence_without_id(example_connection_without_id):
     c = example_connection_without_id.cursor(factory=FTSCursor)
     assert tuple(c.search('posts', 'search AND sqlite OR help')) == (
-        (3, 2, 1) if c.default_fts_version == 5 else (2, 3, 1)
+        (3, 2, 1) if c.default_fts_version == 5 else (2, 1, 3)
     )
 
 
