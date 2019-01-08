@@ -62,12 +62,12 @@ def test_fts5_without_id(example_connection_without_id):
 
 def test_learn(example_connection):
     c = example_connection.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'learn SQLite')) == (1, 3)
+    assert tuple(c.search('posts', 'learn SQLite')) == (3, 1)
 
 
 def test_learn_without_id(example_connection_without_id):
     c = example_connection_without_id.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'learn SQLite')) == (1, 3)
+    assert tuple(c.search('posts', 'learn SQLite')) == (3, 1)
 
 
 def test_not(example_connection):
@@ -82,12 +82,12 @@ def test_not_without_id(example_connection_without_id):
 
 def test_or(example_connection):
     c = example_connection.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'learn OR text')) == (1, 2, 3)
+    assert tuple(c.search('posts', 'learn OR text')) == (3, 1, 2)
 
 
 def test_or_without_id(example_connection_without_id):
     c = example_connection_without_id.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'learn OR text')) == (1, 2, 3)
+    assert tuple(c.search('posts', 'learn OR text')) == (3, 1, 2)
 
 
 def test_and(example_connection):
@@ -102,22 +102,22 @@ def test_and_without_id(example_connection_without_id):
 
 def test_precedence(example_connection):
     c = example_connection.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'search AND sqlite OR help')) == (1, 2, 3)
+    assert tuple(c.search('posts', 'search AND sqlite OR help')) == (3, 2, 1)
 
 
 def test_precedence_without_id(example_connection_without_id):
     c = example_connection_without_id.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'search AND sqlite OR help')) == (1, 2, 3)
+    assert tuple(c.search('posts', 'search AND sqlite OR help')) == (3, 2, 1)
 
 
 def test_paren(example_connection):
     c = example_connection.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'search AND (sqlite OR help)')) == (1, 2)
+    assert tuple(c.search('posts', 'search AND (sqlite OR help)')) == (2, 1)
 
 
 def test_paren_without_id(example_connection_without_id):
     c = example_connection_without_id.cursor(factory=FTSCursor)
-    assert tuple(c.search('posts', 'search AND (sqlite OR help)')) == (1, 2)
+    assert tuple(c.search('posts', 'search AND (sqlite OR help)')) == (2, 1)
 
 
 def test_detach(example_connection):
