@@ -410,13 +410,13 @@ def _bm25(n_phrases, n_columns, n_rows, avg_tokens, n_tokens, x):
     print(n_columns)
     inverse_document_freq = tuple(
         tuple(
-            _inverse_document_frequency(n_rows, x[phrase][col][3])
+            _inverse_document_frequency(n_rows, x[phrase][col][2])
             for phrase in range(n_phrases)
         )
         for col in range(n_columns)
     )
     phrase_freq = tuple(
-        tuple(x[phrase][col][1] for phrase in range(n_phrases))
+        tuple(x[phrase][col][0] for phrase in range(n_phrases))
         for col in range(n_columns)
     )
     return -1 * sum(

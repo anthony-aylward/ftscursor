@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='ftscursor',
-    version='0.5.6',
+    version='0.5.7',
     author='Anthony Aylward',
     author_email='aaylward@eng.ucsd.edu',
     description='A sqlite3 cursor with extra methods to support FTS3/4/5',
